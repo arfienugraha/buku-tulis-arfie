@@ -1,0 +1,58 @@
+'''
+Ini Adalah Tugas Akhir Basic Python Ai Indonesia Batch 8
+Nama : Arfie Nugraha
+'''
+
+import smtplib #import library untuk mengirim email
+from email.mime.multipart import MIMEMultipart #import library untuk mengirim email
+from email.mime.text import MIMEText #import library untuk formating text pada body email
+from email.mime.base import MIMEBase #import library untuk attach file pada email
+from email import encoders #import library untuk attach file
+list_penerima=[] #deklarasi variabel list yang akan digunakan untuk menampung email tujuan
+email_id='segelmedangroup@gmail.com' #deklarasi nama email pengirim
+email_pass='phhgvnusrksivieh' #deklarasi nama email pengirim
+
+#Fungsi yang ditujukan untuk menampung jumlah tujuan email dan alamat email yang hendak dikirimkan
+def input_penerima ():
+    jumlah=int(input("Masukkan Jumlah Tujuan Email yang Hendak Dikirimkan : "))
+    for i in range (0,jumlah): #Loop untuk menampung alamat email sesuai dengan jumlah email dikirim
+        penerima=input("Masukkan Email yang Ingin Dikirimkan : ")
+        list_penerima.append(penerima) 
+        x=open("receiver_list.txt","a") #Menuliskan setiap alamat email yang ditampung pada file eksternal
+        x.write(penerima+"\n")
+        x.close()
+    print("Jadi, Daftar List Email Penerima Adalah")
+    print(list_penerima)
+    
+
+#Fungsi yang ditujukan untuk mengirimkan email (Resource : https://www.youtube.com/watch?v=JRCJ6RtE3xU)
+def kirim_email():
+    with smtplib.SMTP('smtp.gmail.com',587) as smtp: #Menggunakan Class SMTP dan mengakses server gmail port 587
+        smtp.ehlo() #Identifikasi dengan main server
+        smtp.starttls() #Encrypt Traffic
+        smtp.ehlo()
+        smtp.login(email_id,email_pass) #Login sesuai dengan user dan pass terdeklarasi
+        subject=input_subject #Variabel Penampung Nama Subject yang Diinput User
+        body=input_body #Variabel Penampung Body Text yang Diinput User
+        msg=MIMEMultipart() 
+        msg.attach(MIMEText(body, 'plain')) #Komposisi Template Email
+        msg['Subject']=subject
+       
+        #Attach File Resource : https://www.pythonindo.com/cara-mengirim-email-menggunakan-python/
+        filename = "File Python 1.pdf" # Pemberian Nama File yang Hendak Diattach
+        attachment = open("Tugas Akhir.pdf", "rb") # Open File yang Hendak Diattach
+ 
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload((attachment).read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+ 
+        msg.attach(part) #Tempelkan File Attachment pada Email
+
+        text = msg.as_string() #Body message dalam string
+        smtp.sendmail(email_id,list_penerima,text) #Mengirimkan email sesuai dengan urutan pengirim, list email tujuan, dan body email
+#Main Program
+input_penerima() #Call Fungsi untuk Menerima Jumlah dan Tujuan Email
+input_subject=input("Masukkan Subject Email yang Hendak Dibuat : ") #Input Subject yang Akan Dikirim
+input_body=input("Masukkan Isi Email yang Hendak Dikirimkan : ") #Input Body yang Akan Dikirim
+kirim_email() #Call Fungsi untuk Mengirimkan Email
